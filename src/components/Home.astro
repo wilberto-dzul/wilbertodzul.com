@@ -1,0 +1,188 @@
+---
+import Rail from './Rail.astro';
+import Greca from './Greca.astro';
+import { base, BLOG_ENABLED, copy, site, ui, type Lang } from '../data/content';
+import { formatDate, postSlug, readingTime, type Post } from '../data/posts';
+
+interface Props {
+  lang: Lang;
+  posts: Post[];
+}
+const { lang, posts } = Astro.props;
+const c = copy[lang];
+const t = ui[lang];
+const b = base(lang);
+---
+
+<section class="plate wrap">
+  <div class="plate-meta">
+    {c.plateMeta.map((m) => <span class="mono">{m}</span>)}
+  </div>
+  <h1>Wilberto Dzul</h1>
+  <p class="lede" set:html={c.lede} />
+  <div class="prose-intro">
+    {c.intro.map((p) => <p set:html={p} />)}
+  </div>
+  <div class="actions">
+    <a class="btn" href={`mailto:${site.email}`}>{c.ctaPrimary}</a>
+    <a class="btn btn-ghost" href={site.linkedin} rel="me noopener">{c.ctaSecondary}</a>
+  </div>
+</section>
+
+<div class="wrap"><Greca /></div>
+
+<div class="wrap">
+  <Rail num={c.ahora.num} title={c.ahora.title} id="ahora">
+    <div class="prose">
+      {c.ahora.body.map((p) => <p set:html={p} />)}
+    </div>
+  </Rail>
+
+  <Rail num={c.trabajo.num} title={c.trabajo.title} id="trabajo">
+    <p class="section-intro">{c.trabajo.intro}</p>
+    <div class="rows">
+      {
+        c.trabajo.cases.map((k) => (
+          <article class="row">
+            <span class="mono">{k.meta}</span>
+            <h3>{k.title}</h3>
+            <p>{k.body}</p>
+            <p class="row-note" set:html={k.note} />
+            <ul class="tags">
+              {k.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </Rail>
+
+  <Rail num={c.trayectoria.num} title={c.trayectoria.title} id="trayectoria">
+    <div class="rows">
+      {
+        c.trayectoria.jobs.map((job) => (
+          <article class="row row-split row-compact">
+            <span class="mono">{job.date}</span>
+            <div>
+              <h3>
+                {'url' in job && job.url ? (
+                  <a href={job.url} rel="noopener">
+                    {job.company}
+                  </a>
+                ) : (
+                  job.company
+                )}
+                <span class="role"> — {job.role}</span>
+              </h3>
+              <p>{job.desc}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </Rail>
+
+  {BLOG_ENABLED && (
+  <Rail num={c.escribo.num} title={c.escribo.title} id="escribo">
+    <p class="section-intro">{c.escribo.intro}</p>
+    {
+      posts.length > 0 ? (
+        <>
+          <div class="rows">
+            {posts.map((post) => (
+              <a class="row row-split row-compact" href={`${b}/blog/${postSlug(post)}`}>
+                <span class="mono">
+                  {formatDate(post.data.date, lang)}
+                  <br />
+                  {readingTime(post)} {t.minRead}
+                </span>
+                <div>
+                  <h3>
+                    {post.data.draft && <span class="draft-flag">{t.draft}</span>}
+                    {post.data.title}
+                  </h3>
+                  <p>{post.data.description}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+          <p class="more">
+            <a href={`${b}/blog`}>{c.escribo.all}</a>
+          </p>
+        </>
+      ) : (
+        <p class="section-intro">{c.escribo.empty}</p>
+      )
+    }
+  </Rail>
+  )}
+
+  <Rail num={BLOG_ENABLED ? c.contacto.num : c.escribo.num} title={c.contacto.title} id="contacto">
+    <p class="section-intro">{c.contacto.body}</p>
+    <p class="mail">
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+    </p>
+    <ul class="tags">
+      <li><a href={site.linkedin} rel="me noopener">LinkedIn</a></li>
+      <li><a href={site.github} rel="me noopener">GitHub</a></li>
+      <li><a href="/rss.xml">RSS</a></li>
+    </ul>
+  </Rail>
+</div>
+
+<style>
+  .section-intro {
+    max-width: 60ch;
+    color: var(--ink-2);
+  }
+
+  .row-compact h3 {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+  }
+
+  .row-compact .role {
+    color: var(--ink-2);
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .row-compact p {
+    margin-top: 0.35rem;
+    font-size: 0.97rem;
+  }
+
+  .more {
+    margin: 1.75rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .more a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+
+  .mail {
+    font-family: var(--display);
+    font-variation-settings: 'SOFT' 0, 'WONK' 1, 'opsz' 60;
+    font-size: clamp(1.5rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    margin: 1.5rem 0 0;
+    word-break: break-word;
+  }
+
+  .mail a {
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+  }
+
+  .tags a {
+    text-decoration: none;
+  }
+</style>

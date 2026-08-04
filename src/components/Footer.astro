@@ -1,0 +1,29 @@
+---
+import Greca from './Greca.astro';
+import { base, BLOG_ENABLED, site, ui, type Lang } from '../data/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const year = 2026;
+---
+
+<footer class="site-foot">
+  <Greca height={12} />
+  <div class="wrap">
+    <div>
+      <p class="mono" style="margin-bottom:.35rem">© {year} Wilberto Dzul · {t.rights}</p>
+      <p class="mono" style="margin:0">{t.builtWith}</p>
+    </div>
+    <nav class="foot-links" aria-label={lang === 'es' ? 'Enlaces' : 'Links'}>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <a href={site.linkedin} rel="me noopener">LinkedIn</a>
+      <a href={site.github} rel="me noopener">GitHub</a>
+      <a href="/">{lang === 'es' ? 'Ver el escritorio →' : 'Open the desktop →'}</a>
+      {BLOG_ENABLED && <a href={`${base(lang)}/blog`}>{lang === 'es' ? 'Escribo' : 'Writing'}</a>}
+      {BLOG_ENABLED && <a href="/rss.xml">RSS</a>}
+    </nav>
+  </div>
+</footer>

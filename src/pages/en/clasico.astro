@@ -1,0 +1,11 @@
+---
+import Base from '../../layouts/Base.astro';
+import Home from '../../components/Home.astro';
+import { getPosts } from '../../data/posts';
+
+const posts = (await getPosts('en')).slice(0, 3);
+---
+
+<Base lang="en" altHref="/clasico" home="/en/clasico">
+  <Home lang="en" posts={posts} />
+</Base>

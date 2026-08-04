@@ -1,0 +1,18 @@
+---
+import Base from '../../../layouts/Base.astro';
+import BlogIndex from '../../../components/BlogIndex.astro';
+import { copy, site } from '../../../data/content';
+import { getPosts } from '../../../data/posts';
+
+const posts = await getPosts('en');
+---
+
+<Base
+  lang="en"
+  altHref="/blog"
+  current="/blog"
+  title={`Writing — ${site.name}`}
+  description={copy.en.escribo.intro}
+>
+  <BlogIndex lang="en" posts={posts} />
+</Base>

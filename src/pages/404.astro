@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import Greca from '../components/Greca.astro';
+import { site, ui } from '../data/content';
+
+const t = ui.es;
+---
+
+<Base lang="es" altHref="/en/" title={`404 — ${site.name}`} description={t.notFound.text}>
+  <section class="wrap plate">
+    <p class="mono">404</p>
+    <h1 class="title">{t.notFound.title}</h1>
+    <p class="lede">{t.notFound.text}</p>
+    <div class="actions">
+      <a class="btn" href="/">{t.backHome}</a>
+      <a class="btn btn-ghost" href="/blog">Escribo</a>
+    </div>
+  </section>
+  <div class="wrap"><Greca /></div>
+</Base>
+
+<style>
+  .title {
+    font-size: clamp(2.5rem, 9vw, 5rem);
+    font-variation-settings: 'SOFT' 0, 'WONK' 1, 'opsz' 100;
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+    padding-block: 0.1em 0.05em;
+  }
+</style>

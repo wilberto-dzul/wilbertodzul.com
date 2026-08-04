@@ -1,0 +1,79 @@
+---
+import Greca from './Greca.astro';
+import { base, copy, ui, type Lang } from '../data/content';
+import { formatDate, postSlug, readingTime, type Post } from '../data/posts';
+
+interface Props {
+  lang: Lang;
+  posts: Post[];
+}
+const { lang, posts } = Astro.props;
+const c = copy[lang];
+const t = ui[lang];
+const b = base(lang);
+---
+
+<section class="wrap plate">
+  <div class="plate-meta">
+    <span class="mono">{c.escribo.num} · {c.escribo.title}</span>
+    <span class="mono">{posts.length} {lang === 'es' ? 'textos' : 'pieces'}</span>
+  </div>
+  <h1 class="index-title">{lang === 'es' ? 'Escribo' : 'Writing'}</h1>
+  <p class="lede">{c.escribo.intro}</p>
+</section>
+
+<div class="wrap"><Greca /></div>
+
+<div class="wrap list">
+  {
+    posts.length === 0 ? (
+      <p class="empty">{c.escribo.empty}</p>
+    ) : (
+      <div class="rows">
+        {posts.map((post) => (
+          <a class="row row-split" href={`${b}/blog/${postSlug(post)}`}>
+            <span class="mono">
+              {formatDate(post.data.date, lang)}
+              <br />
+              {readingTime(post)} {t.minRead}
+            </span>
+            <div>
+              <h3>
+                {post.data.draft && <span class="draft-flag">{t.draft}</span>}
+                {post.data.title}
+              </h3>
+              <p>{post.data.description}</p>
+              {post.data.tags.length > 0 && (
+                <ul class="tags">
+                  {post.data.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .index-title {
+    font-size: clamp(2.75rem, 11vw, 6rem);
+    font-variation-settings: 'SOFT' 0, 'WONK' 1, 'opsz' 120;
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+    padding-block: 0.1em 0.05em;
+  }
+
+  .list {
+    padding-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .empty {
+    color: var(--ink-2);
+    font-family: var(--display);
+    font-size: 1.35rem;
+  }
+</style>

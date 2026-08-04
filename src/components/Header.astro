@@ -1,0 +1,52 @@
+---
+import { base, BLOG_ENABLED, ui, type Lang } from '../data/content';
+
+interface Props {
+  lang: Lang;
+  altHref: string;
+  current?: string;
+  home?: string;
+}
+const { lang, altHref, current = '', home } = Astro.props;
+const homeHref = home ?? `${base(lang)}/`;
+const t = ui[lang];
+---
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href={homeHref}>Wilberto&nbsp;Dzul</a>
+
+    <nav class="site-nav" aria-label={lang === 'es' ? 'Secciones' : 'Sections'}>
+      {
+        t.nav
+          .filter((item) => BLOG_ENABLED || !item.href.includes('/blog'))
+          .map((item) => (
+          <a
+            href={item.href}
+            class={item.href.includes('#') ? 'nav-wide' : ''}
+            aria-current={current && item.href.endsWith(current) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="tools">
+      <a class="tool" href={altHref} title={t.langTitle} hreflang={lang === 'es' ? 'en' : 'es'}>
+        {t.langLabel}
+      </a>
+      <button class="tool" data-theme-toggle type="button" title={t.themeTitle} aria-label={t.themeTitle}>
+        <span aria-hidden="true">◐</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  @media (max-width: 47.99rem) {
+    .nav-wide {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,134 @@
+---
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { BLOG_ENABLED, copy, site, ui, type Lang } from '../data/content';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  /** Misma página en el otro idioma */
+  altHref: string;
+  current?: string;
+  /** A dónde apunta la marca; por defecto el inicio del idioma */
+  home?: string;
+  ogType?: 'website' | 'article';
+  /** Datos estructurados extra (artículo) */
+  jsonld?: Record<string, unknown>;
+}
+
+const {
+  lang,
+  title,
+  description,
+  altHref,
+  current,
+  home,
+  ogType = 'website',
+  jsonld,
+} = Astro.props;
+
+const c = copy[lang];
+const t = ui[lang];
+const pageTitle = title ?? c.title;
+const pageDesc = description ?? c.description;
+const origin = Astro.site ?? new URL(site.url);
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', origin).href;
+const ogImage = new URL('/og.png', origin).href;
+const altLang: Lang = lang === 'es' ? 'en' : 'es';
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: site.url,
+  email: `mailto:${site.email}`,
+  jobTitle:
+    lang === 'es'
+      ? 'Arquitecto de software · AI Full-Stack Engineer'
+      : 'Software architect · AI full-stack engineer',
+  address: { '@type': 'PostalAddress', addressLocality: 'Mérida', addressRegion: 'Yucatán', addressCountry: 'MX' },
+  sameAs: [site.linkedin, site.github],
+};
+---
+
+<!doctype html>
+<html lang={lang} data-theme-default>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={altLang} href={new URL(altHref, origin).href} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    {
+      BLOG_ENABLED && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${site.name} — ${lang === 'es' ? 'textos' : 'writing'}`}
+          href="/rss.xml"
+        />
+      )
+    }
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131110" media="(prefers-color-scheme: dark)" />
+    <meta name="author" content={site.name} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_MX' : 'en_US'} />
+    <meta property="og:site_name" content={site.domain} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDesc} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script is:inline>
+      // Antes del primer pintado: evita el parpadeo de tema.
+      try {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.dataset.theme = saved;
+        }
+      } catch {}
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+    {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+  </head>
+
+  <body>
+    <a class="skip" href="#contenido">{t.skip}</a>
+    <Header lang={lang} altHref={altHref} current={current} home={home} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+
+    <script>
+      const btn = document.querySelector('[data-theme-toggle]');
+      btn?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const current = root.dataset.theme ?? (systemDark ? 'dark' : 'light');
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem('theme', next);
+        } catch {}
+      });
+    </script>
+  </body>
+</html>

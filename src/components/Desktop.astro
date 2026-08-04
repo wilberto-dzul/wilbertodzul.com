@@ -1,0 +1,800 @@
+---
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import '../styles/os.css';
+
+import { copy, os as osText, site, type Lang } from '../data/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = copy[lang];
+const t = osText[lang];
+
+// Datos que consume la terminal (se leen del JSON embebido, no del DOM).
+const term = {
+  whoami: [
+    'Wilberto Dzul · Mérida, Yucatán',
+    'Arquitecto de software · AI Full-Stack Engineer en QuestionPro',
+    'Desde 2010. CTO de tres compañías, co-fundador de dos.',
+  ],
+  casos: c.trabajo.cases.map((k) => ({
+    title: k.title,
+    meta: k.meta,
+    body: k.body.replace(/<[^>]+>/g, ''),
+    tags: k.tags.join(' · '),
+  })),
+  trayectoria: c.trayectoria.jobs.map((j) => `${j.date.padEnd(13)} ${j.company} — ${j.role}`),
+  contacto: [`correo    ${site.email}`, `linkedin  ${site.linkedin}`, `github    ${site.github}`],
+};
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{c.title}</title>
+    <meta name="description" content={c.description} />
+    <meta name="theme-color" content="#1b1430" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={lang === 'es' ? site.url : `${site.url}/en/`} />
+    <link rel="alternate" hreflang={lang === 'es' ? 'en' : 'es'} href={`${site.url}${t.lang.href}`} />
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        height: 100%;
+        overscroll-behavior: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="os">
+      <!-- Barra superior -->
+      <header class="os-bar">
+        <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="12" fill="#b23f1e"></rect>
+          <path d="M10 48 H20 V37 H27 V26 H37 V37 H44 V48 H54" fill="none" stroke="#fff" stroke-width="6"></path>
+        </svg>
+        <span class="name">Wilberto Dzul</span>
+        <button type="button" data-open-win="perfil" class="hide-sm">{t.bar[0]}</button>
+        <button type="button" data-open-win="trabajo" class="hide-sm">{t.bar[1]}</button>
+        <button type="button" data-open-win="trayectoria" class="hide-sm">{t.bar[2]}</button>
+        <button type="button" data-open-win="contacto" class="hide-sm">{t.bar[3]}</button>
+        <div class="right">
+          <div class="chip-wrap">
+            <button class="chip" id="os-profile-btn" type="button" aria-haspopup="menu" aria-expanded="false">
+              <span id="os-profile">{t.labels.curioso}</span> <span aria-hidden="true">▾</span>
+            </button>
+            <div class="chip-menu" id="profile-menu" role="menu" hidden>
+              <p class="chip-menu-t">{t.menuTitle}</p>
+              <button role="menuitem" type="button" data-profile="dev">{t.menu.dev[0]}<em>{t.menu.dev[1]}</em></button>
+              <button role="menuitem" type="button" data-profile="reclutador">
+                {t.menu.reclutador[0]}<em>{t.menu.reclutador[1]}</em>
+              </button>
+              <button role="menuitem" type="button" data-profile="negocio">
+                {t.menu.negocio[0]}<em>{t.menu.negocio[1]}</em>
+              </button>
+              <button role="menuitem" type="button" data-reask>{t.menu.reask[0]}<em>{t.menu.reask[1]}</em></button>
+            </div>
+          </div>
+          <a class="chip" href={t.lang.href} title={t.lang.title} hreflang={lang === 'es' ? 'en' : 'es'}>{t.lang.label}</a>
+          <span class="hide-sm" id="os-clock">--:--</span>
+        </div>
+      </header>
+
+      <!-- Escritorio -->
+      <main id="os-desk">
+        <!-- Perfil -->
+        <section class="win" id="win-perfil" data-w="520" data-x="6" data-y="12" aria-labelledby="t-perfil">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.perfil}</span>
+          </div>
+          <div class="win-body">
+            <p class="mono">{c.plateMeta.join(' · ')}</p>
+            <h2 id="t-perfil">Wilberto Dzul</h2>
+            <p class="lede" style="font-size:1.15rem;max-width:34ch;margin:.6rem 0 1rem" set:html={c.lede}></p>
+            {c.intro.map((p) => <p set:html={p} />)}
+            <ul class="tags">
+              <li><a href={`mailto:${site.email}`}>Escríbeme</a></li>
+              <li><a href={site.linkedin} rel="me noopener">LinkedIn</a></li>
+              <li><a href={site.github} rel="me noopener">GitHub</a></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Trabajo -->
+        <section class="win" id="win-trabajo" data-w="560" data-x="45" data-y="10" aria-labelledby="t-trabajo">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.trabajo}</span>
+          </div>
+          <div class="win-body">
+            <h2 id="t-trabajo">{c.trabajo.title}</h2>
+            <p style="color:var(--ink-2)">{c.trabajo.intro}</p>
+            <div class="rows">
+              {
+                c.trabajo.cases.map((k) => (
+                  <article class="row">
+                    <span class="mono">{k.meta}</span>
+                    <h3>{k.title}</h3>
+                    <p>{k.body}</p>
+                    <p class="row-note" set:html={k.note} />
+                    <ul class="tags">
+                      {k.tags.map((t) => (
+                        <li>{t}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Trayectoria -->
+        <section class="win" id="win-trayectoria" data-w="560" data-x="16" data-y="26" aria-labelledby="t-tray">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.trayectoria}</span>
+          </div>
+          <div class="win-body">
+            <h2 id="t-tray">{c.trayectoria.title}</h2>
+            <div class="rows">
+              {
+                c.trayectoria.jobs.map((j) => (
+                  <article class="row row-split row-compact">
+                    <span class="mono">{j.date}</span>
+                    <div>
+                      <h3>
+                        {j.company} <span style="color:var(--ink-2);font-weight:400">— {j.role}</span>
+                      </h3>
+                      <p>{j.desc}</p>
+                    </div>
+                  </article>
+                ))
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Contacto -->
+        <section class="win" id="win-contacto" data-w="440" data-x="44" data-y="34" aria-labelledby="t-cont">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.contacto}</span>
+          </div>
+          <div class="win-body">
+            <h2 id="t-cont">{c.contacto.title}</h2>
+            <p>{c.contacto.body}</p>
+            <p style="font-family:var(--display);font-size:1.4rem;word-break:break-word">
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </p>
+            <ul class="tags">
+              <li><a href={site.linkedin} rel="me noopener">LinkedIn</a></li>
+              <li><a href={site.github} rel="me noopener">GitHub</a></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Flota de agentes -->
+        <section class="win win-fleet" id="win-agentes" data-w="580" data-x="42" data-y="8" aria-label="Flota de agentes">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.agentes}</span>
+          </div>
+          <div class="win-body">
+            <div class="fleet-top">
+              <div class="stat"><b id="f-prs">0</b><span>{t.fleet.stats[0]}</span></div>
+              <div class="stat"><b id="f-merged">0</b><span>{t.fleet.stats[1]}</span></div>
+              <div class="stat"><b id="f-queue">0</b><span>{t.fleet.stats[2]}</span></div>
+              <div class="stat"><b id="f-up">00:00</b><span>{t.fleet.stats[3]}</span></div>
+            </div>
+
+            <div class="lanes" id="f-lanes">
+              <div class="lane" data-lane="1">
+                <span class="id">lane-1</span>
+                <span class="task">{t.fleet.waiting}</span>
+                <span class="state" data-idle>{t.fleet.free}</span>
+                <div class="lane-bar"><i></i></div>
+              </div>
+              <div class="lane" data-lane="2">
+                <span class="id">lane-2</span>
+                <span class="task">{t.fleet.waiting}</span>
+                <span class="state" data-idle>{t.fleet.free}</span>
+                <div class="lane-bar"><i></i></div>
+              </div>
+              <div class="lane" data-lane="3">
+                <span class="id">lane-3</span>
+                <span class="task">{t.fleet.waiting}</span>
+                <span class="state" data-idle>{t.fleet.free}</span>
+                <div class="lane-bar"><i></i></div>
+              </div>
+            </div>
+
+            <div class="feed" id="f-feed" aria-live="off"></div>
+
+            <p class="fleet-note">
+              {t.fleet.note}
+            </p>
+          </div>
+        </section>
+
+        <!-- Terminal -->
+        <section class="win win-term" id="win-terminal" data-w="560" data-x="5" data-y="16" aria-label="Terminal">
+          <div class="win-bar">
+            <div class="lights">
+              <button class="l-close" type="button" aria-label={t.lights.close}></button>
+              <button class="l-min" type="button" aria-label={t.lights.min}></button>
+              <button class="l-zoom" type="button" aria-label={t.lights.zoom}></button>
+            </div>
+            <span class="win-title">{t.win.terminal}</span>
+          </div>
+          <div class="win-body" id="term-body">
+            <div class="term-log" id="term-log"></div>
+            <div class="term-line">
+              <span class="ps1">~ %</span>
+              <input
+                class="term-in"
+                id="term-in"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label={t.term.aria}
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Dock -->
+      <nav class="os-dock" aria-label="Aplicaciones">
+        <button class="dock-app" type="button" data-open-win="terminal">
+          <span class="dock-tip">{t.dock[0]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m6 9 3 3-3 3M12 15h5"></path></svg
+          >
+        </button>
+        <button class="dock-app" type="button" data-open-win="agentes">
+          <span class="dock-tip">{t.dock[1]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><rect x="4" y="4" width="16" height="16" rx="2"></rect><path
+              d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2M9.5 9.5h5v5h-5z"></path></svg
+          >
+        </button>
+        <button class="dock-app" type="button" data-open-win="perfil">
+          <span class="dock-tip">{t.dock[2]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"></path></svg
+          >
+        </button>
+        <button class="dock-app" type="button" data-open-win="trabajo">
+          <span class="dock-tip">{t.dock[3]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><rect x="2" y="7" width="20" height="13" rx="2"></rect><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"
+            ></path></svg
+          >
+        </button>
+        <button class="dock-app" type="button" data-open-win="trayectoria">
+          <span class="dock-tip">{t.dock[4]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg
+          >
+        </button>
+        <button class="dock-app" type="button" data-open-win="contacto">
+          <span class="dock-tip">{t.dock[5]}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+            ><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg
+          >
+        </button>
+      </nav>
+
+      <a class="os-exit" href={t.exitHref}>{t.exit}</a>
+
+      <!-- Selector de perfil -->
+      <div class="ask" id="ask" hidden>
+        <div class="ask-card" role="dialog" aria-modal="true" aria-labelledby="ask-t">
+          <h2 id="ask-t">{t.ask.title}</h2>
+          <p>{t.ask.text}</p>
+          <div class="ask-opts">
+            <button class="ask-opt" type="button" data-profile="dev">
+              <span class="k">1</span>
+              <span>
+                <strong>{t.ask.dev[0]}</strong>
+                <span class="d">{t.ask.dev[1]}</span>
+              </span>
+            </button>
+            <button class="ask-opt" type="button" data-profile="reclutador">
+              <span class="k">2</span>
+              <span>
+                <strong>{t.ask.reclutador[0]}</strong>
+                <span class="d">{t.ask.reclutador[1]}</span>
+              </span>
+            </button>
+            <button class="ask-opt" type="button" data-profile="negocio">
+              <span class="k">3</span>
+              <span>
+                <strong>{t.ask.negocio[0]}</strong>
+                <span class="d">{t.ask.negocio[1]}</span>
+              </span>
+            </button>
+          </div>
+          <button class="ask-skip" type="button" data-profile="curioso">{t.ask.skip}</button>
+        </div>
+      </div>
+
+      <!-- Arranque -->
+      <div class="os-boot" id="boot"><pre class="boot-log" id="bootlog"></pre></div>
+    </div>
+
+    <script type="application/json" id="os-data" set:html={JSON.stringify({ ...term, t })}></script>
+
+    <script>
+      type Term = {
+        whoami: string[];
+        casos: { title: string; meta: string; body: string; tags: string }[];
+        trayectoria: string[];
+        contacto: string[];
+        t: any;
+      };
+
+      const data: Term = JSON.parse(document.getElementById('os-data')!.textContent!);
+      const T = data.t;
+      const desk = document.getElementById('os-desk')!;
+      const dock = document.querySelector('.os-dock')!;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const isPhone = () => window.matchMedia('(max-width: 46rem)').matches;
+      let z = 10;
+
+      /* ---------- ventanas ---------- */
+
+      const win = (id: string) => document.getElementById(`win-${id}`) as HTMLElement | null;
+
+      function place(w: HTMLElement) {
+        if (isPhone() || w.dataset.placed) return;
+        const width = Math.min(Number(w.dataset.w ?? 520), window.innerWidth - 40);
+        w.style.width = `${width}px`;
+        w.style.left = `${(Number(w.dataset.x ?? 10) / 100) * window.innerWidth}px`;
+        w.style.top = `${30 + (Number(w.dataset.y ?? 15) / 100) * (window.innerHeight - 130)}px`;
+        w.dataset.placed = '1';
+      }
+
+      function focusWin(w: HTMLElement) {
+        w.style.zIndex = String(++z);
+      }
+
+      function open(id: string) {
+        const w = win(id);
+        if (!w) return;
+        place(w);
+        w.setAttribute('data-open', '');
+        focusWin(w);
+        dock.querySelector(`[data-open-win="${id}"]`)?.setAttribute('data-active', '');
+        if (id === 'terminal') setTimeout(() => document.getElementById('term-in')?.focus(), 120);
+        if (id === 'agentes') startFleet();
+      }
+
+      function close(id: string) {
+        win(id)?.removeAttribute('data-open');
+        dock.querySelector(`[data-open-win="${id}"]`)?.removeAttribute('data-active');
+      }
+
+      document.querySelectorAll<HTMLElement>('[data-open-win]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.openWin!;
+          const w = win(id);
+          if (w?.hasAttribute('data-open') && btn.closest('.os-dock')) close(id);
+          else open(id);
+        });
+      });
+
+      document.querySelectorAll<HTMLElement>('.win').forEach((w) => {
+        const id = w.id.replace('win-', '');
+        w.addEventListener('pointerdown', () => focusWin(w), true);
+        w.querySelector('.l-close')!.addEventListener('click', () => close(id));
+        w.querySelector('.l-min')!.addEventListener('click', () => close(id));
+        w.querySelector('.l-zoom')!.addEventListener('click', () => {
+          if (isPhone()) return;
+          if (w.dataset.zoom) {
+            w.style.width = w.dataset.pw!;
+            w.style.left = w.dataset.pl!;
+            w.style.top = w.dataset.pt!;
+            w.style.height = '';
+            delete w.dataset.zoom;
+          } else {
+            w.dataset.pw = w.style.width;
+            w.dataset.pl = w.style.left;
+            w.dataset.pt = w.style.top;
+            w.style.left = '2vw';
+            w.style.top = '46px';
+            w.style.width = '96vw';
+            w.style.height = 'calc(100dvh - 140px)';
+            w.dataset.zoom = '1';
+          }
+        });
+
+        // arrastre por la barra de título
+        const bar = w.querySelector<HTMLElement>('.win-bar')!;
+        bar.addEventListener('pointerdown', (e) => {
+          if (isPhone() || (e.target as HTMLElement).closest('.lights')) return;
+          const r = w.getBoundingClientRect();
+          const dx = e.clientX - r.left;
+          const dy = e.clientY - r.top;
+          bar.setPointerCapture(e.pointerId);
+          const move = (ev: PointerEvent) => {
+            w.style.left = `${Math.min(Math.max(ev.clientX - dx, -r.width + 90), window.innerWidth - 90)}px`;
+            w.style.top = `${Math.max(ev.clientY - dy, 30)}px`;
+          };
+          const up = () => {
+            bar.removeEventListener('pointermove', move);
+            bar.removeEventListener('pointerup', up);
+          };
+          bar.addEventListener('pointermove', move);
+          bar.addEventListener('pointerup', up);
+        });
+      });
+
+      /* ---------- reloj ---------- */
+
+      const clock = document.getElementById('os-clock')!;
+      const tick = () =>
+        (clock.textContent = new Intl.DateTimeFormat(T.locale, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(new Date()));
+      tick();
+      setInterval(tick, 20_000);
+
+      /* ---------- terminal ---------- */
+
+      const log = document.getElementById('term-log')!;
+      const input = document.getElementById('term-in') as HTMLInputElement;
+      const history: string[] = [];
+      let hIdx = 0;
+
+      function print(text: string, cls = '') {
+        const div = document.createElement('div');
+        if (cls) div.className = cls;
+        div.textContent = text;
+        log.appendChild(div);
+        document.getElementById('term-body')!.scrollTop = 9e9;
+      }
+
+      const WELCOME: string[] = T.term.welcome;
+
+      const HELP: string[] = T.term.help;
+
+      function run(raw: string) {
+        const [cmd, ...args] = raw.trim().split(/\s+/);
+        const arg = args.join(' ').toLowerCase();
+        switch (cmd.toLowerCase()) {
+          case '':
+            return;
+          case 'help':
+          case 'ayuda':
+            return HELP.forEach((l) => print(l, l.startsWith(' ') ? '' : 'dim'));
+          case 'whoami':
+            return data.whoami.forEach((l) => print(l));
+          case 'casos':
+          case 'cases':
+          case 'trabajo':
+          case 'work':
+            return data.casos.forEach((k) => {
+              print('');
+              print(k.meta, 'dim');
+              print(k.title, 'ok');
+              print(k.body);
+              print(k.tags, 'dim');
+            });
+          case 'flota':
+          case 'fleet':
+          case 'agentes':
+            open('agentes');
+            return print(T.term.openingFleet, 'dim');
+          case 'cv':
+          case 'career':
+          case 'trayectoria':
+            return data.trayectoria.forEach((l) => print(l));
+          case 'contacto':
+          case 'contact':
+            return data.contacto.forEach((l) => print(l));
+          case 'abrir':
+          case 'open':
+            if (win(arg)) {
+              open(arg);
+              return print(`${T.term.opening} ${arg}…`, 'dim');
+            }
+            return print(`${T.term.noApp}: ${arg}`, 'dim');
+          case 'perfil':
+          case 'profile': {
+            const map: Record<string, string> = { recruiter: 'reclutador', business: 'negocio' };
+            const p = map[arg] ?? arg;
+            if (['dev', 'reclutador', 'negocio'].includes(p)) return setProfile(p);
+            return print(T.term.useProfile, 'dim');
+          }
+          case 'idioma':
+          case 'lang':
+            return (location.href = T.lang.href);
+          case 'clasico':
+          case 'clásico':
+          case 'classic':
+            return (location.href = T.exitHref);
+          case 'limpiar':
+          case 'clear':
+            log.innerHTML = '';
+            return;
+          case 'sudo':
+            return print(T.term.sudo, 'dim');
+          default:
+            return print(`${T.term.notFound}: ${cmd} — ${T.term.hint}`, 'dim');
+        }
+      }
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const v = input.value;
+          print(`~ % ${v}`, 'cmd');
+          if (v.trim()) history.push(v);
+          hIdx = history.length;
+          run(v);
+          input.value = '';
+        } else if (e.key === 'ArrowUp' && hIdx > 0) {
+          input.value = history[--hIdx] ?? '';
+        } else if (e.key === 'ArrowDown') {
+          hIdx = Math.min(hIdx + 1, history.length);
+          input.value = history[hIdx] ?? '';
+        }
+      });
+
+      WELCOME.forEach((l) => print(l, l.startsWith('Esto') || l.startsWith('Escribe') ? 'dim' : ''));
+
+      document.getElementById('win-terminal')!.addEventListener('click', (e) => {
+        if (!(e.target as HTMLElement).closest('.win-bar')) input.focus();
+      });
+
+      /* ---------- flota de agentes ---------- */
+
+      const ISSUES: string[] = T.fleet.issues;
+
+      // Cada paso dura N ticks. Los modos de falla son los que de verdad pasan.
+      const DUR = [2, 2, 7, 2, 2, 3, 3, 1];
+      const STEPS: { s: string; t: number }[] = T.fleet.steps.map((s: string, i: number) => ({ s, t: DUR[i] }));
+
+      type Lane = { el: HTMLElement; issue: string; step: number; tick: number; wait: number; stuck: boolean };
+      const lanes: Lane[] = [...document.querySelectorAll<HTMLElement>('.lane')].map((el) => ({
+        el,
+        issue: '',
+        step: -1,
+        tick: 0,
+        wait: Math.floor(Math.random() * 4),
+        stuck: false,
+      }));
+
+      let fPrs = 0;
+      let fMerged = 0;
+      let fQueue = 5;
+      let fSecs = 0;
+      let fleetOn = false;
+      const feed = document.getElementById('f-feed')!;
+      const totalTicks = STEPS.reduce((a, s) => a + s.t, 0);
+
+      const two = (n: number) => String(n).padStart(2, '0');
+
+      function say(who: string, text: string, cls = '') {
+        const row = document.createElement('div');
+        row.innerHTML = `<span class="t">${two(Math.floor(fSecs / 60))}:${two(fSecs % 60)}</span><span class="who">${who}</span><span class="${cls}"></span>`;
+        row.lastElementChild!.textContent = text;
+        feed.appendChild(row);
+        while (feed.children.length > 60) feed.firstElementChild!.remove();
+        feed.scrollTop = 9e9;
+      }
+
+      function paint(l: Lane) {
+        const task = l.el.querySelector('.task')!;
+        const state = l.el.querySelector('.state')!;
+        const bar = l.el.querySelector<HTMLElement>('.lane-bar i')!;
+        if (l.step < 0) {
+          task.textContent = T.fleet.waiting;
+          state.textContent = T.fleet.free;
+          state.setAttribute('data-idle', '');
+          bar.style.width = '0%';
+          l.el.removeAttribute('data-done');
+          return;
+        }
+        const done = STEPS.slice(0, l.step).reduce((a, s) => a + s.t, 0) + l.tick;
+        task.textContent = l.issue;
+        state.textContent = l.stuck ? T.fleet.stuck : STEPS[l.step].s;
+        state.removeAttribute('data-idle');
+        bar.style.width = `${Math.round((done / totalTicks) * 100)}%`;
+      }
+
+      function fleetTick() {
+        fSecs += 1;
+        document.getElementById('f-up')!.textContent = `${two(Math.floor(fSecs / 60))}:${two(fSecs % 60)}`;
+
+        for (const l of lanes) {
+          if (l.step < 0) {
+            if (l.wait-- > 0) continue;
+            if (fQueue <= 0) {
+              fQueue = 3 + Math.floor(Math.random() * 4);
+              say('poller', `${T.fleet.ev.queue} ${fQueue} ${T.fleet.ev.queueTail}`, '');
+              continue;
+            }
+            l.issue = ISSUES[Math.floor(Math.random() * ISSUES.length)];
+            l.step = 0;
+            l.tick = 0;
+            l.stuck = false;
+            fQueue--;
+            say('poller', `${l.el.dataset.lane ? 'lane-' + l.el.dataset.lane : ''} ← ${l.issue}`);
+            paint(l);
+            continue;
+          }
+
+          if (l.stuck) {
+            if (Math.random() < 0.4) {
+              l.stuck = false;
+              say(`lane-${l.el.dataset.lane}`, T.fleet.ev.fixed, 'ok');
+            }
+            continue;
+          }
+
+          l.tick++;
+          if (l.tick >= STEPS[l.step].t) {
+            l.tick = 0;
+            l.step++;
+
+            if (l.step === 4) {
+              fPrs++;
+              document.getElementById('f-prs')!.textContent = String(fPrs);
+              say(`lane-${l.el.dataset.lane}`, `${T.fleet.ev.pr} ${l.issue.split(' ')[0]}`, 'ok');
+            }
+            if (l.step === 5 && Math.random() < 0.25) {
+              l.stuck = true;
+              say(`lane-${l.el.dataset.lane}`, T.fleet.ev.clash, 'warn');
+            }
+            if (l.step >= STEPS.length) {
+              fMerged++;
+              fPrs = Math.max(0, fPrs - 1);
+              document.getElementById('f-merged')!.textContent = String(fMerged);
+              document.getElementById('f-prs')!.textContent = String(fPrs);
+              say(`lane-${l.el.dataset.lane}`, `${T.fleet.ev.merged} ${l.issue.split(' ')[0]} ${T.fleet.ev.mergedTail}`, 'ok');
+              l.step = -1;
+              l.wait = 2 + Math.floor(Math.random() * 4);
+            }
+          }
+          paint(l);
+        }
+        document.getElementById('f-queue')!.textContent = String(fQueue);
+      }
+
+      function startFleet() {
+        if (fleetOn) return;
+        fleetOn = true;
+        say(T.fleet.ev.sys, T.fleet.ev.up);
+        setInterval(fleetTick, 850);
+      }
+
+      /* ---------- perfiles ---------- */
+
+      // El último de cada lista queda encima: ahí va lo que más le importa al perfil.
+      const LAYOUT: Record<string, string[]> = {
+        dev: ['terminal', 'agentes'],
+        reclutador: ['perfil', 'trayectoria'],
+        negocio: ['perfil', 'contacto'],
+        curioso: ['perfil', 'agentes'],
+      };
+      const LABEL: Record<string, string> = T.labels;
+
+      function setProfile(p: string) {
+        document.querySelectorAll<HTMLElement>('.win[data-open]').forEach((w) => close(w.id.replace('win-', '')));
+        (LAYOUT[p] ?? LAYOUT.curioso).forEach((id, i) => setTimeout(() => open(id), i * 130));
+        document.getElementById('os-profile')!.textContent = LABEL[p] ?? 'visitante';
+        try {
+          localStorage.setItem('perfil', p);
+        } catch {}
+      }
+
+      const pMenu = document.getElementById('profile-menu')!;
+      const pBtn = document.getElementById('os-profile-btn')!;
+
+      function menu(show: boolean) {
+        pMenu.hidden = !show;
+        pBtn.setAttribute('aria-expanded', String(show));
+      }
+
+      pBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu(pMenu.hidden);
+      });
+
+      document.addEventListener('click', () => menu(false));
+      document.addEventListener('keydown', (e) => e.key === 'Escape' && menu(false));
+      pMenu.addEventListener('click', (e) => e.stopPropagation());
+
+      document.querySelectorAll<HTMLElement>('[data-profile]').forEach((b) =>
+        b.addEventListener('click', () => {
+          document.getElementById('ask')!.hidden = true;
+          menu(false);
+          setProfile(b.dataset.profile!);
+        }),
+      );
+
+      document.querySelector<HTMLElement>('[data-reask]')!.addEventListener('click', () => {
+        menu(false);
+        document.querySelectorAll<HTMLElement>('.win[data-open]').forEach((w) => close(w.id.replace('win-', '')));
+        try {
+          localStorage.removeItem('perfil');
+        } catch {}
+        document.getElementById('os-profile')!.textContent = T.labels.curioso;
+        document.getElementById('ask')!.hidden = false;
+      });
+
+      /* ---------- arranque ---------- */
+
+      const BOOT: string[] = T.boot;
+
+      const boot = document.getElementById('boot')!;
+      const bootlog = document.getElementById('bootlog')!;
+
+      function guess(): string | null {
+        const q = new URLSearchParams(location.search).get('p');
+        if (q && LAYOUT[q]) return q;
+        try {
+          const saved = localStorage.getItem('perfil');
+          if (saved && LAYOUT[saved]) return saved;
+        } catch {}
+        const r = document.referrer;
+        if (/github|ycombinator|dev\.to/i.test(r)) return 'dev';
+        if (/linkedin|indeed|glassdoor/i.test(r)) return 'reclutador';
+        return null;
+      }
+
+      function finish() {
+        boot.setAttribute('data-done', '');
+        const pre = guess();
+        if (pre) setProfile(pre);
+        else document.getElementById('ask')!.hidden = false;
+        setTimeout(() => boot.remove(), 600);
+      }
+
+      if (reduce) {
+        bootlog.textContent = BOOT.join('\n');
+        finish();
+      } else {
+        let i = 0;
+        const step = () => {
+          bootlog.textContent = BOOT.slice(0, ++i).join('\n');
+          if (i < BOOT.length) setTimeout(step, 90 + Math.min(i, 4) * 25);
+          else setTimeout(finish, 420);
+        };
+        step();
+      }
+    </script>
+  </body>
+</html>

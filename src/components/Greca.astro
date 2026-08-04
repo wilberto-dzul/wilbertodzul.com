@@ -1,0 +1,25 @@
+---
+// Greca escalonada — la marca del sitio. Patrón geométrico maya, no un divisor
+// genérico. Sin viewBox a propósito: así el mosaico se repite a su tamaño real
+// (cada 44px) en lugar de estirarse al ancho del contenedor.
+interface Props {
+  height?: number;
+  class?: string;
+}
+const { height = 16, class: cls = '' } = Astro.props;
+---
+
+<svg class={`greca ${cls}`} width="100%" height={height} aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="greca-tile" width="44" height="16" patternUnits="userSpaceOnUse">
+      <path
+        d="M0 14 H6 V8 H13 V2 H31 V8 H38 V14 H44"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      />
+      <rect x="20" y="8" width="4" height="4" fill="currentColor" />
+    </pattern>
+  </defs>
+  <rect width="100%" height={height} fill="url(#greca-tile)" />
+</svg>
