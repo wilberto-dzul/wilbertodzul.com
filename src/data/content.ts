@@ -96,7 +96,7 @@ export const copy = {
       title: 'Ahora',
       body: [
         'De día, producto con IA en <strong>QuestionPro</strong>: una plataforma de research que usan miles de organizaciones. Además de features, automatizo el propio ciclo de desarrollo con agentes.',
-        'Fuera de horas construyo una suite para el micro-negocio mexicano y un estudio de video generativo que corre completo en mi GPU. Entreno funcional, corro, y sigo viviendo en Mérida.',
+        'Fuera de horas entreno funcional, corro y sigo construyendo cosas por mi cuenta. Vivo en Mérida.',
       ],
     },
 
@@ -200,7 +200,7 @@ export const copy = {
       title: 'Now',
       body: [
         'By day, AI product work at <strong>QuestionPro</strong>: a research platform used by thousands of organizations. Beyond features, I automate the development cycle itself with agents.',
-        'After hours I build a product suite for Mexican micro-businesses and a generative video studio that runs entirely on my own GPU. I train, I run, and I still live in Mérida.',
+        'After hours I train, I run, and I keep building things of my own. I live in Mérida.',
       ],
     },
 
